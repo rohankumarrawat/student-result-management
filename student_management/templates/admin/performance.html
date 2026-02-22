@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Performance Analytics{% endblock %}
+
+{% block sidebar_menu %}
+<li>
+    <a href="{% url 'admin_dashboard' %}">
+        <div class="menu-icon"><i class="fi fi-rr-home"></i></div>
+        <span class="nav-text">Dashboard</span>
+    </a>
+</li>
+<li>
+    <a href="{% url 'admin_upload_csv' %}">
+        <div class="menu-icon"><i class="fi fi-rr-upload"></i></div>
+        <span class="nav-text">Upload CSV</span>
+    </a>
+</li>
+<li>
+    <a href="{% url 'admin_manual_entry' %}">
+        <div class="menu-icon"><i class="fi fi-rr-edit"></i></div>
+        <span class="nav-text">Manual Entry</span>
+    </a>
+</li>
+<li class="active">
+    <a href="{% url 'admin_performance' %}">
+        <div class="menu-icon"><i class="fi fi-rr-chart-pie"></i></div>
+        <span class="nav-text">Performance</span>
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Chart Section -->
+    <div class="col-xl-8 col-lg-7 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-0">
+                <h4 class="card-title">Average Marks by Subject</h4>
+            </div>
+            <div class="card-body">
+                <canvas id="subjectAvgChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pie Chart -->
+    <div class="col-xl-4 col-lg-5 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-0">
+                <h4 class="card-title">Pass vs Fail Ratio</h4>
+            </div>
+            <div class="card-body d-flex justify-content-center align-items-center">
+                <canvas id="passFailChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Top Students -->
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header border-0 pb-0">
+                <h4 class="card-title text-success">Top Performing Students</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Roll No</th>
+                                <th>Average Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in top_students %}
+                            <tr>
+                                <td>{{ student.student__user__first_name }}</td>
+                                <td>{{ student.student__roll_number }}</td>
+                                <td><span class="badge badge-success light">{{ student.marks|floatformat:2 }}</span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3">No records found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weak Students -->
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header border-0 pb-0">
+                <h4 class="card-title text-danger">Students Needing Attention</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Roll No</th>
+                                <th>Average Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in weak_students reversed %}
+                            <tr>
+                                <td>{{ student.student__user__first_name }}</td>
+                                <td>{{ student.student__roll_number }}</td>
+                                <td><span class="badge badge-danger light">{{ student.marks|floatformat:2 }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3">No records found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Bar Chart (Subject Averages)
+        const ctxBar = document.getElementById('subjectAvgChart').getContext('2d');
+        const labels = JSON.parse('{{ subject_labels|safe }}');
+        const data = JSON.parse('{{ subject_avgs|safe }}');
+
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Average Marks',
+                    data: data,
+                    backgroundColor: [
+                        'rgba(99, 61, 254, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 159, 64, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(99, 61, 254, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            color: "rgba(0,0,0,0.05)"
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Pie Chart (Pass/Fail)
+        const ctxPie = document.getElementById('passFailChart').getContext('2d');
+        const passFailData = JSON.parse('{{ pass_fail_data|safe }}'); // [passed, failed]
+        
+        new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: ['Passed', 'Failed'],
+                datasets: [{
+                    data: passFailData,
+                    backgroundColor: [
+                        'rgba(40, 199, 111, 0.8)', // Success Green
+                        'rgba(234, 84, 85, 0.8)'   // Danger Red
+                    ],
+                    borderColor: [
+                        '#ffffff',
+                        '#ffffff'
+                    ],
+                    borderWidth: 2,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

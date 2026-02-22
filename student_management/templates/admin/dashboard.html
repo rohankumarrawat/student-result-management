@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Admin Dashboard{% endblock %}
+
+{% block sidebar_menu %}
+<li>
+    <a href="{% url 'admin_dashboard' %}">
+        <div class="menu-icon"><i class="fi fi-rr-home"></i></div>
+        <span class="nav-text">Dashboard</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <div class="menu-icon"><i class="fi fi-rr-upload"></i></div>
+        <span class="nav-text">Upload CSV</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <div class="menu-icon"><i class="fi fi-rr-edit"></i></div>
+        <span class="nav-text">Manual Entry</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <div class="menu-icon"><i class="fi fi-rr-chart-pie"></i></div>
+        <span class="nav-text">Performance</span>
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-4 col-md-6">
+        <div class="card text-bg-primary overflow-hidden">
+            <div class="card-body pt-4">
+                <h4 class="card-title text-white">Total Students</h4>
+                <h3 class="display-4 text-white fw-semibold mb-0">{{ total_students }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-6">
+        <div class="card text-bg-success overflow-hidden">
+            <div class="card-body pt-4">
+                <h4 class="card-title text-white">Total Subjects</h4>
+                <h3 class="display-4 text-white fw-semibold mb-0">{{ total_subjects }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-12">
+        <div class="card text-bg-info overflow-hidden">
+            <div class="card-body pt-4">
+                <h4 class="card-title text-white">Results Recorded</h4>
+                <h3 class="display-4 text-white fw-semibold mb-0">{{ total_results }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header border-0 pb-0">
+                <h4 class="card-title">Recent Activity</h4>
+            </div>
+            <div class="card-body">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="results-tab" data-bs-toggle="tab" data-bs-target="#results"
+                            type="button" role="tab" aria-controls="results" aria-selected="true">Recent
+                            Results</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="students-tab" data-bs-toggle="tab" data-bs-target="#students"
+                            type="button" role="tab" aria-controls="students" aria-selected="false">All
+                            Students</button>
+                    </li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="results" role="tabpanel" aria-labelledby="results-tab">
+                        <div class="table-responsive mt-3">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Student Name</th>
+                                        <th>Roll No</th>
+                                        <th>Subject</th>
+                                        <th>Marks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for result in recent_results %}
+                                    <tr>
+                                        <td>{{ result.student.user.first_name }}</td>
+                                        <td>{{ result.student.roll_number }}</td>
+                                        <td>{{ result.subject.name }} ({{ result.subject.code }})</td>
+                                        <td><strong class="text-primary">{{ result.marks }}</strong></td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4">No results uploaded yet.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="students" role="tabpanel" aria-labelledby="students-tab">
+                        <div class="table-responsive mt-3">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Roll No</th>
+                                        <th>Name</th>
+                                        <th>Username</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in students %}
+                                    <tr>
+                                        <td>{{ student.roll_number }}</td>
+                                        <td>{{ student.user.first_name }}</td>
+                                        <td>{{ student.user.username }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="3">No students found.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

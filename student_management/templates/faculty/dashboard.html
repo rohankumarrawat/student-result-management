@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Faculty Dashboard{% endblock %}
+
+{% block sidebar_menu %}
+<li>
+    <a href="{% url 'faculty_dashboard' %}">
+        <div class="menu-icon"><i class="fi fi-rr-home"></i></div>
+        <span class="nav-text">Dashboard</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <div class="menu-icon"><i class="fi fi-rr-book"></i></div>
+        <span class="nav-text">My Subjects</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <div class="menu-icon"><i class="fi fi-rr-chart-pie"></i></div>
+        <span class="nav-text">Class Performance</span>
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-4 col-lg-5">
+        {% if top_student %}
+        <div class="card text-center custom-card-1 mb-4">
+            <div class="card-body">
+                <h4 class="fw-semibold fs-xl mb-0">Class Topper</h4>
+                <div class="mt-4 mb-3 d-flex justify-content-center">
+                    <img src="{% static 'assets/images/avatar/small/avatar1.webp' %}" class="rounded-circle" width="80"
+                        alt="Topper">
+                </div>
+                <h5 class="fw-bold mb-1 lh-1 text-primary">{{ top_student.student.user.first_name }} ({{
+                    top_student.student.roll_number }})</h5>
+                <p class="fs-lg fw-medium px-xxl-4 lh-sm">Highest Marks: <strong class="text-success">{{
+                        top_student.marks }}</strong> in {{ top_student.subject.name }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card mb-4">
+            <div class="card-header border-0 pb-0">
+                <h4 class="card-title">My Subjects</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for subject in subjects %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ subject.name }} <span class="badge bg-primary rounded-pill">{{ subject.code }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item">No subjects assigned.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-8 col-lg-7 mb-4">
+        <div class="card">
+            <div class="card-header border-0 pb-0">
+                <h4 class="card-title">My Subjects Performance</h4>
+            </div>
+            <div class="card-body">
+                <canvas id="facultyChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header border-0 pb-0">
+                <h4 class="card-title">Student Results</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Roll No</th>
+                                <th>Subject</th>
+                                <th>Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr>
+                                <td>{{ result.student.user.first_name }}</td>
+                                <td>{{ result.student.roll_number }}</td>
+                                <td>{{ result.subject.name }}</td>
+                                <td><strong class="text-primary">{{ result.marks }}</strong></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4">No results recorded for your subjects.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById('facultyChart').getContext('2d');
+        const labels = JSON.parse('{{ chart_labels|safe }}');
+        const data = JSON.parse('{{ chart_avgs|safe }}');
+
+        // Only render chart if there is data
+        if (labels.length > 0) {
+            new Chart(ctx, {
+                type: 'bar', // Using bar chart as requested
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Class Average Marks',
+                        data: data,
+                        backgroundColor: 'rgba(99, 61, 254, 0.7)',
+                        borderColor: 'rgba(99, 61, 254, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        barPercentage: 0.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                color: "rgba(0,0,0,0.05)"
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

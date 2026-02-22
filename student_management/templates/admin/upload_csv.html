@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Upload Results CSV{% endblock %}
+
+{% block sidebar_menu %}
+<li>
+    <a href="{% url 'admin_dashboard' %}">
+        <div class="menu-icon"><i class="fi fi-rr-home"></i></div>
+        <span class="nav-text">Dashboard</span>
+    </a>
+</li>
+<li class="active">
+    <a href="{% url 'admin_upload_csv' %}">
+        <div class="menu-icon"><i class="fi fi-rr-upload"></i></div>
+        <span class="nav-text">Upload CSV</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <div class="menu-icon"><i class="fi fi-rr-edit"></i></div>
+        <span class="nav-text">Manual Entry</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <div class="menu-icon"><i class="fi fi-rr-chart-pie"></i></div>
+        <span class="nav-text">Performance</span>
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-6 mx-auto">
+        <div class="card mt-4">
+            <div class="card-header border-0 pb-0">
+                <h4 class="card-title">Upload CSV File</h4>
+            </div>
+            <div class="card-body">
+                <p>Ensure your CSV has columns:
+                    <br><code>roll_number, student_name, subject_code, subject_name, marks</code></p>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="csv_file" class="form-label">Select CSV</label>
+                        <input class="form-control" type="file" name="csv_file" id="csv_file" accept=".csv" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Upload & Process</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

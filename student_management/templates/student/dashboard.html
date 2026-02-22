@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Student Dashboard{% endblock %}
+
+{% block sidebar_menu %}
+<li>
+    <a href="{% url 'student_dashboard' %}">
+        <div class="menu-icon"><i class="fi fi-rr-home"></i></div>
+        <span class="nav-text">Dashboard</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <div class="menu-icon"><i class="fi fi-rr-graduation-cap"></i></div>
+        <span class="nav-text">My Marks</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <div class="menu-icon"><i class="fi fi-rr-stats"></i></div>
+        <span class="nav-text">Performance Analysis</span>
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% else %}
+<div class="row">
+    <!-- Grade Card -->
+    <div class="col-xl-4 col-md-6">
+        <div class="card text-center custom-card-1">
+            <div class="card-body">
+                <h4 class="fw-semibold fs-xl mb-0">Overall Grade</h4>
+                <h5 class="display-1 fw-semibold mb-1 lh-1 text-primary my-4">{{ grade }}</h5>
+                <p class="fs-lg fw-medium px-xxl-4 lh-sm">You have scored {{ total_scored }} out of {{ total_max }}.</p>
+                <div class="progress mt-3">
+                    <div class="progress-bar bg-primary" style="width: {{ avg_percentage|stringformat:'f' }}%;"
+                        role="progressbar" aria-valuenow="{{ avg_percentage|stringformat:'f' }}" aria-valuemin="0"
+                        aria-valuemax="100">{{ avg_percentage|stringformat:".1f" }}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="col-xl-8 col-md-6">
+        <div class="card">
+            <div class="card-header border-0 pb-0">
+                <h4 class="card-title">Subject Wise Performance</h4>
+            </div>
+            <div class="card-body">
+                <canvas id="studentChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header border-0 pb-0">
+                <h4 class="card-title">Detailed Marks</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Subject Code</th>
+                                <th>Subject Name</th>
+                                <th>Marks Obtained</th>
+                                <th>Max Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in results %}
+                            <tr>
+                                <td>{{ r.subject.code }}</td>
+                                <td>{{ r.subject.name }}</td>
+                                <td><strong class="text-primary">{{ r.marks }}</strong></td>
+                                <td>100</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4">No results available yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Render chart only if elements exist (meaning no error)
+        var canvas = document.getElementById('studentChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            const labels = JSON.parse('{{ labels|safe }}');
+            const data = JSON.parse('{{ marks|safe }}');
+
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Marks Obtained',
+                        data: data,
+                        fill: true,
+                        backgroundColor: 'rgba(99, 61, 254, 0.2)', // primary color
+                        borderColor: 'rgb(99, 61, 254)',
+                        pointBackgroundColor: 'rgb(99, 61, 254)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(99, 61, 254)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true,
+                                color: 'rgba(0,0,0,0.1)'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 13
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
