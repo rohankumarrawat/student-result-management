@@ -1,51 +1,78 @@
 {% extends 'base.html' %}
 
+{% block title %}Upload CSV - SRS{% endblock %}
 {% block page_title %}Upload Results CSV{% endblock %}
 
 {% block sidebar_menu %}
-<li>
-    <a href="{% url 'admin_dashboard' %}">
-        <div class="menu-icon"><i class="fi fi-rr-home"></i></div>
-        <span class="nav-text">Dashboard</span>
-    </a>
-</li>
-<li class="active">
-    <a href="{% url 'admin_upload_csv' %}">
-        <div class="menu-icon"><i class="fi fi-rr-upload"></i></div>
-        <span class="nav-text">Upload CSV</span>
-    </a>
-</li>
-<li>
-    <a href="#">
-        <div class="menu-icon"><i class="fi fi-rr-edit"></i></div>
-        <span class="nav-text">Manual Entry</span>
-    </a>
-</li>
-<li>
-    <a href="#">
-        <div class="menu-icon"><i class="fi fi-rr-chart-pie"></i></div>
-        <span class="nav-text">Performance</span>
-    </a>
-</li>
+<a href="{% url 'admin_dashboard' %}" class="sidebar-link">
+    <i class="bi bi-speedometer2"></i> Dashboard
+</a>
+<a href="{% url 'admin_upload_csv' %}" class="sidebar-link active">
+    <i class="bi bi-cloud-upload"></i> Upload CSV
+</a>
+<a href="{% url 'admin_manual_entry' %}" class="sidebar-link">
+    <i class="bi bi-pencil-square"></i> Manual Entry
+</a>
+<a href="{% url 'admin_performance' %}" class="sidebar-link">
+    <i class="bi bi-graph-up-arrow"></i> Performance
+</a>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-xl-6 mx-auto">
-        <div class="card mt-4">
-            <div class="card-header border-0 pb-0">
-                <h4 class="card-title">Upload CSV File</h4>
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <!-- Info Card -->
+        <div class="card mb-4" style="background:rgba(99,102,241,0.06); border:1.5px dashed rgba(99,102,241,0.3);">
+            <div class="card-body">
+                <h6 class="fw-bold mb-2" style="color:#6366f1;"><i class="bi bi-info-circle me-2"></i>CSV Format
+                    Required</h6>
+                <p class="mb-2 text-muted small">Your CSV file must have these exact columns:</p>
+                <code class="d-block p-2 rounded" style="background:rgba(99,102,241,0.1);color:#4f46e5;">
+                    roll_number, student_name, subject_code, subject_name, marks
+                </code>
+                <div class="row g-2 mt-3">
+                    <div class="col-6">
+                        <div class="p-2 rounded text-center" style="background:rgba(34,197,94,0.08);">
+                            <small class="text-success fw-600"><i class="bi bi-check-circle me-1"></i>Supported
+                                formats</small><br>
+                            <small class="text-muted">.csv files only</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 rounded text-center" style="background:rgba(245,158,11,0.08);">
+                            <small class="text-warning fw-600"><i class="bi bi-exclamation-triangle me-1"></i>Marks
+                                range</small><br>
+                            <small class="text-muted">0 to 100</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Form -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-cloud-upload me-2" style="color:#6366f1;"></i>Upload CSV File
             </div>
             <div class="card-body">
-                <p>Ensure your CSV has columns:
-                    <br><code>roll_number, student_name, subject_code, subject_name, marks</code></p>
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="csv_file" class="form-label">Select CSV</label>
-                        <input class="form-control" type="file" name="csv_file" id="csv_file" accept=".csv" required>
+                    <div class="mb-4">
+                        <label class="form-label fw-600">Select CSV File</label>
+                        <div class="border-2 border-dashed rounded-3 p-4 text-center"
+                            style="border:2px dashed #e2e8f0; cursor:pointer;"
+                            onclick="document.getElementById('csv_file').click()">
+                            <i class="bi bi-file-earmark-spreadsheet fs-2 mb-2 d-block" style="color:#94a3b8;"></i>
+                            <div class="text-muted mb-2">Click to browse or drag & drop your CSV file</div>
+                            <span id="fileName" class="badge badge-soft-primary" style="display:none;"></span>
+                        </div>
+                        <input class="d-none" type="file" name="csv_file" id="csv_file" accept=".csv" required
+                            onchange="document.getElementById('fileName').textContent=this.files[0].name;document.getElementById('fileName').style.display='inline';">
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Upload & Process</button>
+                    <button type="submit" class="btn w-100 py-3 fw-600"
+                        style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border-radius:12px;">
+                        <i class="bi bi-upload me-2"></i>Upload & Process Results
+                    </button>
                 </form>
             </div>
         </div>

@@ -1,50 +1,78 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
 
+{% block title %}Manual Entry - SRS{% endblock %}
 {% block page_title %}Manual Result Entry{% endblock %}
 
 {% block sidebar_menu %}
-<li>
-    <a href="{% url 'admin_dashboard' %}">
-        <div class="menu-icon"><i class="fi fi-rr-home"></i></div>
-        <span class="nav-text">Dashboard</span>
-    </a>
-</li>
-<li>
-    <a href="{% url 'admin_upload_csv' %}">
-        <div class="menu-icon"><i class="fi fi-rr-upload"></i></div>
-        <span class="nav-text">Upload CSV</span>
-    </a>
-</li>
-<li class="active">
-    <a href="{% url 'admin_manual_entry' %}">
-        <div class="menu-icon"><i class="fi fi-rr-edit"></i></div>
-        <span class="nav-text">Manual Entry</span>
-    </a>
-</li>
-<li>
-    <a href="#">
-        <div class="menu-icon"><i class="fi fi-rr-chart-pie"></i></div>
-        <span class="nav-text">Performance</span>
-    </a>
-</li>
+<a href="{% url 'admin_dashboard' %}" class="sidebar-link">
+    <i class="bi bi-speedometer2"></i> Dashboard
+</a>
+<a href="{% url 'admin_upload_csv' %}" class="sidebar-link">
+    <i class="bi bi-cloud-upload"></i> Upload CSV
+</a>
+<a href="{% url 'admin_manual_entry' %}" class="sidebar-link active">
+    <i class="bi bi-pencil-square"></i> Manual Entry
+</a>
+<a href="{% url 'admin_performance' %}" class="sidebar-link">
+    <i class="bi bi-graph-up-arrow"></i> Performance
+</a>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-xl-6 mx-auto">
-        <div class="card mt-4">
-            <div class="card-header border-0 pb-0">
-                <h4 class="card-title">Add / Edit Result</h4>
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-pencil-square me-2" style="color:#6366f1;"></i>Add / Edit Result
             </div>
             <div class="card-body">
                 <form method="POST">
                     {% csrf_token %}
-                    {{ form|crispy }}
-                    <button type="submit" class="btn btn-primary w-100 mt-3">Save Result</button>
+                    {% for field in form %}
+                    <div class="mb-4">
+                        <label class="form-label fw-600" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <div style="position:relative;">
+                            {{ field }}
+                        </div>
+                        {% if field.errors %}
+                        <div class="text-danger small mt-1">{{ field.errors }}</div>
+                        {% endif %}
+                        {% if field.help_text %}
+                        <div class="text-muted small mt-1">{{ field.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn w-100 py-3 fw-600 mt-2"
+                        style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border-radius:12px;">
+                        <i class="bi bi-save me-2"></i>Save Result
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    select.form-control,
+    input.form-control,
+    select,
+    input[type="number"],
+    input[type="text"] {
+        border: 1.5px solid #e2e8f0 !important;
+        border-radius: 10px !important;
+        padding: 10px 14px !important;
+        width: 100%;
+        font-size: 0.9rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    select:focus,
+    input:focus {
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
+        outline: none;
+    }
+</style>
 {% endblock %}

@@ -1,89 +1,96 @@
 {% extends 'base.html' %}
 
+{% block title %}Performance Analytics - SRS{% endblock %}
 {% block page_title %}Performance Analytics{% endblock %}
 
 {% block sidebar_menu %}
-<li>
-    <a href="{% url 'admin_dashboard' %}">
-        <div class="menu-icon"><i class="fi fi-rr-home"></i></div>
-        <span class="nav-text">Dashboard</span>
-    </a>
-</li>
-<li>
-    <a href="{% url 'admin_upload_csv' %}">
-        <div class="menu-icon"><i class="fi fi-rr-upload"></i></div>
-        <span class="nav-text">Upload CSV</span>
-    </a>
-</li>
-<li>
-    <a href="{% url 'admin_manual_entry' %}">
-        <div class="menu-icon"><i class="fi fi-rr-edit"></i></div>
-        <span class="nav-text">Manual Entry</span>
-    </a>
-</li>
-<li class="active">
-    <a href="{% url 'admin_performance' %}">
-        <div class="menu-icon"><i class="fi fi-rr-chart-pie"></i></div>
-        <span class="nav-text">Performance</span>
-    </a>
-</li>
+<a href="{% url 'admin_dashboard' %}" class="sidebar-link">
+    <i class="bi bi-speedometer2"></i> Dashboard
+</a>
+<a href="{% url 'admin_upload_csv' %}" class="sidebar-link">
+    <i class="bi bi-cloud-upload"></i> Upload CSV
+</a>
+<a href="{% url 'admin_manual_entry' %}" class="sidebar-link">
+    <i class="bi bi-pencil-square"></i> Manual Entry
+</a>
+<a href="{% url 'admin_performance' %}" class="sidebar-link active">
+    <i class="bi bi-graph-up-arrow"></i> Performance
+</a>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Chart Section -->
-    <div class="col-xl-8 col-lg-7 mb-4">
+<div class="row g-4 mb-4">
+    <!-- Bar Chart -->
+    <div class="col-lg-8">
         <div class="card h-100">
-            <div class="card-header border-0 pb-0">
-                <h4 class="card-title">Average Marks by Subject</h4>
+            <div class="card-header"><i class="bi bi-bar-chart me-2" style="color:#6366f1;"></i>Average Marks by Subject
             </div>
             <div class="card-body">
-                <canvas id="subjectAvgChart"></canvas>
+                <canvas id="subjectAvgChart" height="200"></canvas>
             </div>
         </div>
     </div>
-    
+
     <!-- Pie Chart -->
-    <div class="col-xl-4 col-lg-5 mb-4">
+    <div class="col-lg-4">
         <div class="card h-100">
-            <div class="card-header border-0 pb-0">
-                <h4 class="card-title">Pass vs Fail Ratio</h4>
-            </div>
-            <div class="card-body d-flex justify-content-center align-items-center">
-                <canvas id="passFailChart"></canvas>
+            <div class="card-header"><i class="bi bi-pie-chart me-2" style="color:#6366f1;"></i>Pass vs Fail Ratio</div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <canvas id="passFailChart" style="max-height:230px;"></canvas>
+                {% if pass_count is not None %}
+                <div class="d-flex gap-3 mt-3">
+                    <div class="text-center">
+                        <div class="fw-700 text-success" style="font-size:1.5rem;">{{ pass_count }}</div>
+                        <small class="text-muted">Passed</small>
+                    </div>
+                    <div class="text-center">
+                        <div class="fw-700 text-danger" style="font-size:1.5rem;">{{ fail_count }}</div>
+                        <small class="text-muted">Failed</small>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
-<div class="row">
+<div class="row g-4">
     <!-- Top Students -->
-    <div class="col-xl-6">
-        <div class="card">
-            <div class="card-header border-0 pb-0">
-                <h4 class="card-title text-success">Top Performing Students</h4>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-trophy me-2 text-warning"></i>Top Performing Students
             </div>
-            <div class="card-body">
+            <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Roll No</th>
-                                <th>Average Marks</th>
+                                <th>#</th>
+                                <th>Student</th>
+                                <th>Subject</th>
+                                <th>Marks</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for student in top_students %}
+                            {% for s in top_students %}
                             <tr>
-                                <td>{{ student.student__user__first_name }}</td>
-                                <td>{{ student.student__roll_number }}</td>
-                                <td><span class="badge badge-success light">{{ student.marks|floatformat:2 }}</span>
+                                <td>
+                                    {% if forloop.counter == 1 %}<span class="badge"
+                                        style="background:#ffd700;color:#78350f;">🥇</span>
+                                    {% elif forloop.counter == 2 %}<span class="badge"
+                                        style="background:#c0c0c0;color:#374151;">🥈</span>
+                                    {% elif forloop.counter == 3 %}<span class="badge"
+                                        style="background:#cd7f32;color:#fff;">🥉</span>
+                                    {% else %}{{ forloop.counter }}{% endif %}
                                 </td>
+                                <td><strong>{{ s.Student }}</strong></td>
+                                <td><span class="badge badge-soft-primary">{{ s.Subject }}</span></td>
+                                <td><strong class="text-success">{{ s.Marks }}</strong></td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="3">No records found.</td>
+                                <td colspan="4" class="text-center py-4 text-muted">No data available.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -94,31 +101,34 @@
     </div>
 
     <!-- Weak Students -->
-    <div class="col-xl-6">
-        <div class="card">
-            <div class="card-header border-0 pb-0">
-                <h4 class="card-title text-danger">Students Needing Attention</h4>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-exclamation-triangle me-2 text-danger"></i>Needs Improvement
             </div>
-            <div class="card-body">
+            <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Roll No</th>
-                                <th>Average Marks</th>
+                                <th>Student</th>
+                                <th>Subject</th>
+                                <th>Marks</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for student in weak_students reversed %}
+                            {% for s in weak_students %}
                             <tr>
-                                <td>{{ student.student__user__first_name }}</td>
-                                <td>{{ student.student__roll_number }}</td>
-                                <td><span class="badge badge-danger light">{{ student.marks|floatformat:2 }}</span></td>
+                                <td><strong>{{ s.Student }}</strong></td>
+                                <td><span class="badge badge-soft-danger">{{ s.Subject }}</span></td>
+                                <td><strong class="text-danger">{{ s.Marks }}</strong></td>
+                                <td><span class="badge badge-soft-danger"><i class="bi bi-x-circle me-1"></i>Fail</span>
+                                </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="3">No records found.</td>
+                                <td colspan="4" class="text-center py-4 text-muted">🎉 All students passed!</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -132,102 +142,52 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Bar Chart (Subject Averages)
-        const ctxBar = document.getElementById('subjectAvgChart').getContext('2d');
-        const labels = JSON.parse('{{ subject_labels|safe }}');
-        const data = JSON.parse('{{ subject_avgs|safe }}');
+    const subjects = [{% for item in subject_averages %}"{{ item.Subject }}"{% if not forloop.last %}, {% endif %} {% endfor %}];
+    const avgs = [{% for item in subject_averages %}{ { item.Average } } {% if not forloop.last %}, {% endif %} {% endfor %}];
 
-        new Chart(ctxBar, {
+    if (subjects.length > 0) {
+        new Chart(document.getElementById('subjectAvgChart'), {
             type: 'bar',
             data: {
-                labels: labels,
+                labels: subjects,
                 datasets: [{
                     label: 'Average Marks',
-                    data: data,
-                    backgroundColor: [
-                        'rgba(99, 61, 254, 0.7)',
-                        'rgba(54, 162, 235, 0.7)',
-                        'rgba(255, 206, 86, 0.7)',
-                        'rgba(75, 192, 192, 0.7)',
-                        'rgba(153, 102, 255, 0.7)',
-                        'rgba(255, 159, 64, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgba(99, 61, 254, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1,
-                    borderRadius: 5,
-                    barPercentage: 0.6
+                    data: avgs,
+                    backgroundColor: 'rgba(99,102,241,0.75)',
+                    borderRadius: 8, borderSkipped: false,
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: {
-                            color: "rgba(0,0,0,0.05)"
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
+                    y: { beginAtZero: true, max: 100, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
                 }
             }
         });
+    }
 
-        // Pie Chart (Pass/Fail)
-        const ctxPie = document.getElementById('passFailChart').getContext('2d');
-        const passFailData = JSON.parse('{{ pass_fail_data|safe }}'); // [passed, failed]
-        
-        new Chart(ctxPie, {
-            type: 'doughnut',
-            data: {
-                labels: ['Passed', 'Failed'],
-                datasets: [{
-                    data: passFailData,
-                    backgroundColor: [
-                        'rgba(40, 199, 111, 0.8)', // Success Green
-                        'rgba(234, 84, 85, 0.8)'   // Danger Red
-                    ],
-                    borderColor: [
-                        '#ffffff',
-                        '#ffffff'
-                    ],
-                    borderWidth: 2,
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 20
-                        }
-                    }
-                }
-            }
-        });
-    });
+    {% if pass_count is not None %}
+    new Chart(document.getElementById('passFailChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Passed', 'Failed'],
+            datasets: [{
+                data: [{{ pass_count }}, {{ fail_count }}],
+        backgroundColor: ['rgba(34,197,94,0.85)', 'rgba(239,68,68,0.85)'],
+        borderWidth: 0,
+    }]
+    },
+        options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom' },
+            tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}` } }
+        },
+        cutout: '65%',
+    }
+});
+    {% endif %}
 </script>
 {% endblock %}

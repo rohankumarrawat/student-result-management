@@ -1,96 +1,161 @@
 {% extends 'base.html' %}
 
-{% block page_title %}Student Dashboard{% endblock %}
+{% block title %}Student Dashboard - SRS{% endblock %}
+{% block page_title %}My Dashboard{% endblock %}
 
 {% block sidebar_menu %}
-<li>
-    <a href="{% url 'student_dashboard' %}">
-        <div class="menu-icon"><i class="fi fi-rr-home"></i></div>
-        <span class="nav-text">Dashboard</span>
-    </a>
-</li>
-<li>
-    <a href="#">
-        <div class="menu-icon"><i class="fi fi-rr-graduation-cap"></i></div>
-        <span class="nav-text">My Marks</span>
-    </a>
-</li>
-<li>
-    <a href="#">
-        <div class="menu-icon"><i class="fi fi-rr-stats"></i></div>
-        <span class="nav-text">Performance Analysis</span>
-    </a>
-</li>
+<a href="{% url 'student_dashboard' %}" class="sidebar-link active">
+    <i class="bi bi-speedometer2"></i> Dashboard
+</a>
+<a href="#marksSection" class="sidebar-link">
+    <i class="bi bi-journal-bookmark-fill"></i> My Marks
+</a>
+<a href="#chartSection" class="sidebar-link">
+    <i class="bi bi-bar-chart-line-fill"></i> Performance
+</a>
 {% endblock %}
 
 {% block content %}
 {% if error %}
-<div class="alert alert-danger">{{ error }}</div>
+<div class="alert alert-danger alert-dismissible fade show">
+    <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
 {% else %}
-<div class="row">
-    <!-- Grade Card -->
-    <div class="col-xl-4 col-md-6">
-        <div class="card text-center custom-card-1">
+
+<!-- Grade Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card h-100 text-center" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">
+            <div class="stat-icon mx-auto" style="background:rgba(255,255,255,0.15);">
+                <i class="bi bi-trophy-fill text-white"></i>
+            </div>
+            <div class="stat-value text-white">{{ grade }}</div>
+            <div class="stat-label text-white opacity-75">Overall Grade</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-white h-100 text-center">
+            <div class="stat-icon mx-auto" style="background:rgba(34,197,94,0.12);">
+                <i class="bi bi-percent" style="color:#22c55e;"></i>
+            </div>
+            <div class="stat-value">{{ avg_percentage|stringformat:".1f" }}%</div>
+            <div class="stat-label">Average Score</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-white h-100 text-center">
+            <div class="stat-icon mx-auto" style="background:rgba(245,158,11,0.12);">
+                <i class="bi bi-check2-all" style="color:#f59e0b;"></i>
+            </div>
+            <div class="stat-value">{{ total_scored }}</div>
+            <div class="stat-label">Marks Scored</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-white h-100 text-center">
+            <div class="stat-icon mx-auto" style="background:rgba(99,102,241,0.12);">
+                <i class="bi bi-book-half" style="color:#6366f1;"></i>
+            </div>
+            <div class="stat-value">{{ results|length }}</div>
+            <div class="stat-label">Subjects</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Performance Chart -->
+    <div class="col-lg-8" id="chartSection">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-bar-chart-line me-2" style="color:#6366f1;"></i>Subject-wise Performance
+            </div>
             <div class="card-body">
-                <h4 class="fw-semibold fs-xl mb-0">Overall Grade</h4>
-                <h5 class="display-1 fw-semibold mb-1 lh-1 text-primary my-4">{{ grade }}</h5>
-                <p class="fs-lg fw-medium px-xxl-4 lh-sm">You have scored {{ total_scored }} out of {{ total_max }}.</p>
-                <div class="progress mt-3">
-                    <div class="progress-bar bg-primary" style="width: {{ avg_percentage|stringformat:'f' }}%;"
-                        role="progressbar" aria-valuenow="{{ avg_percentage|stringformat:'f' }}" aria-valuemin="0"
-                        aria-valuemax="100">{{ avg_percentage|stringformat:".1f" }}%</div>
-                </div>
+                <canvas id="performanceChart" height="200"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Chart -->
-    <div class="col-xl-8 col-md-6">
-        <div class="card">
-            <div class="card-header border-0 pb-0">
-                <h4 class="card-title">Subject Wise Performance</h4>
+    <!-- Progress Summary -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-activity me-2" style="color:#6366f1;"></i>Score Progress
             </div>
             <div class="card-body">
-                <canvas id="studentChart" height="150"></canvas>
+                {% for result in results %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small class="fw-600">{{ result.subject.name }}</small>
+                        <small
+                            class="fw-bold {% if result.marks >= 75 %}text-success{% elif result.marks >= 50 %}text-warning{% else %}text-danger{% endif %}">{{
+                            result.marks }}/100</small>
+                    </div>
+                    <div class="progress" style="height:8px;border-radius:8px;">
+                        <div class="progress-bar {% if result.marks >= 75 %}bg-success{% elif result.marks >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
+                            style="width:{{ result.marks }}%;border-radius:8px;"></div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
 </div>
 
-<div class="row mt-4">
-    <div class="col-xl-12">
-        <div class="card">
-            <div class="card-header border-0 pb-0">
-                <h4 class="card-title">Detailed Marks</h4>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Subject Code</th>
-                                <th>Subject Name</th>
-                                <th>Marks Obtained</th>
-                                <th>Max Marks</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for r in results %}
-                            <tr>
-                                <td>{{ r.subject.code }}</td>
-                                <td>{{ r.subject.name }}</td>
-                                <td><strong class="text-primary">{{ r.marks }}</strong></td>
-                                <td>100</td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4">No results available yet.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+<!-- Detailed Marks Table -->
+<div class="card mt-4" id="marksSection">
+    <div class="card-header">
+        <i class="bi bi-table me-2" style="color:#6366f1;"></i>Subject-wise Marks Detail
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Subject</th>
+                        <th>Code</th>
+                        <th>Marks</th>
+                        <th>Grade</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td><strong>{{ result.subject.name }}</strong></td>
+                        <td><span class="badge badge-soft-primary">{{ result.subject.code }}</span></td>
+                        <td>
+                            <strong
+                                class="{% if result.marks >= 75 %}text-success{% elif result.marks >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                                {{ result.marks }}
+                            </strong><span class="text-muted">/100</span>
+                        </td>
+                        <td>
+                            {% if result.marks >= 90 %}<span class="badge badge-soft-success">A+</span>
+                            {% elif result.marks >= 75 %}<span class="badge badge-soft-success">A</span>
+                            {% elif result.marks >= 60 %}<span class="badge badge-soft-primary">B</span>
+                            {% elif result.marks >= 50 %}<span class="badge badge-soft-warning">C</span>
+                            {% else %}<span class="badge badge-soft-danger">F</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if result.marks >= 50 %}
+                            <span class="badge badge-soft-success"><i class="bi bi-check-circle me-1"></i>Pass</span>
+                            {% else %}
+                            <span class="badge badge-soft-danger"><i class="bi bi-x-circle me-1"></i>Fail</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>No results found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -99,59 +164,32 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Render chart only if elements exist (meaning no error)
-        var canvas = document.getElementById('studentChart');
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            const labels = JSON.parse('{{ labels|safe }}');
-            const data = JSON.parse('{{ marks|safe }}');
+    const labels = [{% for r in results %}"{{ r.subject.name }}"{% if not forloop.last %}, {% endif %} {% endfor %}];
+    const scores = [{% for r in results %}{ { r.marks } } {% if not forloop.last %}, {% endif %} {% endfor %}];
 
-            new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Marks Obtained',
-                        data: data,
-                        fill: true,
-                        backgroundColor: 'rgba(99, 61, 254, 0.2)', // primary color
-                        borderColor: 'rgb(99, 61, 254)',
-                        pointBackgroundColor: 'rgb(99, 61, 254)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgb(99, 61, 254)'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            angleLines: {
-                                display: true,
-                                color: 'rgba(0,0,0,0.1)'
-                            },
-                            suggestedMin: 0,
-                            suggestedMax: 100,
-                            grid: {
-                                color: 'rgba(0,0,0,0.1)'
-                            },
-                            pointLabels: {
-                                font: {
-                                    size: 13
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
+    if (labels.length > 0) {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Marks',
+                    data: scores,
+                    backgroundColor: scores.map(s => s >= 75 ? 'rgba(34,197,94,0.8)' : s >= 50 ? 'rgba(245,158,11,0.8)' : 'rgba(239,68,68,0.8)'),
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 100, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
                 }
-            });
-        }
-    });
+            }
+        });
+    }
 </script>
 {% endblock %}

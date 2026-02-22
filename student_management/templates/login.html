@@ -3,111 +3,244 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SRS - Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Student Result System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
 
-    <!-- FAVICONS ICON -->
-    <link rel="shortcut icon" type="image/png" href="{% static 'assets/images/favicon.png' %}">
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        .login-card {
+            background: #fff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 900px;
+        }
 
-    <!-- Plugins Stylesheet -->
-    <link href="{% static 'assets/vendor/bootstrap-select/dist/css/bootstrap-select.min.css' %}" rel="stylesheet">
-    <link class="main-switcher" href="{% static 'assets/css/switcher.css' %}" rel="stylesheet">
+        .login-left {
+            background: linear-gradient(135deg, #1e1b4b, #6366f1);
+            padding: 60px 40px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
 
-    <!-- Start - Style CSS -->
-    <link class="main-plugins" href="{% static 'assets/css/plugins.css' %}" rel="stylesheet">
-    <link class="main-css" href="{% static 'assets/css/style.css' %}" rel="stylesheet">
+        .login-left h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .login-left p {
+            opacity: 0.8;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 12px 16px;
+            border-radius: 12px;
+        }
+
+        .feature-item i {
+            font-size: 1.2rem;
+            color: #a5b4fc;
+        }
+
+        .feature-item span {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .login-right {
+            padding: 60px 48px;
+        }
+
+        .login-right h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+
+        .login-right p {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+
+        .form-control {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+
+        .input-group-text {
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            color: #94a3b8;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 13px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-1px);
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .role-hint {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+
+        .role-badge {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 12px;
+        }
+    </style>
 </head>
 
-<body data-typography="poppins" data-theme-version="light" data-layout="vertical" data-nav-headerbg="color_1"
-    data-headerbg="color_1" data-sidebar-style="full" data-sibebarbg="color_1" data-sidebar-position="fixed"
-    data-header-position="fixed" data-container="wide" direction="ltr">
-
-    <!-- Start - Preloader -->
-    <div class="ic_preloader" id="ic_preloader">
-        <div class="spinner">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
-    </div>
-    <!-- End - Preloader -->
-
-    <!-- Start - Authentication Wrapper -->
-    <div class="auth-wrapper">
-        <div class="row">
-            <div class="col-xl-6 col-lg-6 order-lg-1">
-                <div class="auth-info text-center">
-                    <div class="mb-5 mx-auto col-xxl-6">
-                        <div class="brand-logo mb-3">
-                            <h1 class="text-primary font-weight-bold">SRS Portal</h1>
-                        </div>
-                        <p class="info-text">Student Result and Performance Management System for Admins, Faculty,
-                            and Students.</p>
+<body>
+    <div class="login-card">
+        <div class="row g-0 h-100">
+            <!-- Left Panel -->
+            <div class="col-lg-5 login-left d-none d-lg-flex">
+                <div>
+                    <div class="mb-4">
+                        <span
+                            style="background:rgba(255,255,255,0.15);padding:6px 16px;border-radius:20px;font-size:0.8rem;font-weight:600;letter-spacing:1px;">SRS
+                            PORTAL</span>
                     </div>
-                    <div class="auth-media">
-                        <img class="w-100 img-fluid" src="{% static 'assets/images/login.png' %}" alt="">
+                    <h1>Student Result System</h1>
+                    <p>A unified platform for managing student results and performance analytics across all roles.</p>
+
+                    <div class="feature-item">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Secure role-based access for Admin, Faculty & Students</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        <span>Real-time performance analytics and charts</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="bi bi-cloud-upload"></i>
+                        <span>CSV bulk upload and manual entry support</span>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-6 col-lg-6 mx-auto align-self-center">
-                <div class="auth-form">
-                    <div class="text-center mb-4">
-                        <h3 class="mb-0">Sign In</h3>
-                        <p class="mb-0">Log in to enter the portal</p>
-                    </div>
 
-                    {% if messages %}
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-                    {% endfor %}
-                    {% endif %}
+            <!-- Right Panel - Login Form -->
+            <div class="col-lg-7 login-right">
+                <h2>Welcome back 👋</h2>
+                <p>Sign in to your account to continue</p>
 
-                    <form action="{% url 'login' %}" method="POST">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label">Username</label>
-                            <input type="text" name="username" class="form-control form-control-lg"
-                                placeholder="Enter username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Password</label>
-                            <div class="position-relative">
-                                <input type="password" name="password" autocomplete="current-password"
-                                    class="form-control form-control-lg ic-password" placeholder="Enter your password"
-                                    required>
-                                <span class="show-pass position-absolute top-50 end-0 me-2 translate-middle">
-                                    <span class="show"><i class="fa fa-eye-slash"></i></span>
-                                    <span class="hide"><i class="fa fa-eye"></i></span>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">Sign In</button>
-                        </div>
-                    </form>
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
+                {% endfor %}
+                {% endif %}
+
+                <form method="POST" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text" name="username" class="form-control" placeholder="Enter your username"
+                                required autofocus>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" name="password" class="form-control"
+                                placeholder="Enter your password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-login w-100">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                    </button>
+                </form>
+
+                <div class="role-hint">
+                    <span class="role-badge"><i class="bi bi-person-badge me-1"></i>Admin</span>
+                    <span class="role-badge"><i class="bi bi-mortarboard me-1"></i>Faculty</span>
+                    <span class="role-badge"><i class="bi bi-person-check me-1"></i>Student</span>
+                </div>
+
+                <p class="text-center text-muted mt-4" style="font-size:0.8rem;">
+                    Student Result &amp; Performance Management System
+                </p>
             </div>
         </div>
     </div>
-    <!-- End - Authentication Wrapper -->
-
-    <!-- Start - Page Scripts -->
-    <script src="{% static 'assets/vendor/jquery/dist/jquery.min.js' %}"></script>
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmxc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
-    <script src="{% static 'assets/js/custom.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
