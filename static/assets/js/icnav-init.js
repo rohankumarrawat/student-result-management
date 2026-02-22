@@ -435,13 +435,13 @@ function getUrlParams(dParam){
 	});
 	
 	if(direction == 'rtl' || body.attr('direction') == 'rtl'){
-		jQuery('.main-switcher').attr('href','assets/css/switcher-rtl.css');
-		jQuery('.main-plugins').attr('href','assets/css/plugins-rtl.css');
-		jQuery('.main-css').attr('href','assets/css/style-rtl.css');
+		jQuery('.main-switcher').attr('href','/static/assets/css/switcher-rtl.css');
+		jQuery('.main-plugins').attr('href','/static/assets/css/plugins-rtl.css');
+		jQuery('.main-css').attr('href','/static/assets/css/style-rtl.css');
     }else{
-		jQuery('.main-switcher').attr('href','assets/css/switcher.css');
-		jQuery('.main-plugins').attr('href','assets/css/plugins.css');
-		jQuery('.main-css').attr('href','assets/css/style.css');
+		jQuery('.main-switcher').attr('href','/static/assets/css/switcher.css');
+		jQuery('.main-plugins').attr('href','/static/assets/css/plugins.css');
+		jQuery('.main-css').attr('href','/static/assets/css/style.css');
 	}
 
 })(jQuery);
